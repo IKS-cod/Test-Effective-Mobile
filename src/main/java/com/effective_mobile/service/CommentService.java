@@ -11,16 +11,42 @@ import com.effective_mobile.repository.CommentRepository;
 import com.effective_mobile.repository.TaskRepository;
 import org.springframework.stereotype.Service;
 
+/**
+ * Сервис для работы с комментариями к заданиям.
+ *
+ */
 @Service
 public class CommentService {
 
+    /**
+     * Репозиторий для доступа к комментариям в базе данных.
+     */
     private final CommentRepository commentRepository;
+
+    /**
+     * Репозиторий для доступа к заданиям в базе данных.
+     */
     private final TaskRepository taskRepository;
 
+    /**
+     * Конструктор для инициализации репозиториев.
+     *
+     * @param commentRepository репозиторий комментариев
+     * @param taskRepository репозиторий заданий
+     */
     public CommentService(CommentRepository commentRepository, TaskRepository taskRepository) {
         this.commentRepository = commentRepository;
         this.taskRepository = taskRepository;
     }
+
+    /**
+     * Создает новый комментарий к заданию с заданным идентификатором.
+     *
+     * @param id идентификатор задания
+     * @param createOrUpdateCommentsDto объект, содержащий текст комментария
+     * @return созданный комментарий в виде DTO
+     * @throws TaskNotFoundException если задание с указанным идентификатором не найдено
+     */
     @CustomLoggingStartMethod
     @CustomLoggingFinishedMethod
     public CommentFromDbDto createComment(Long id, CreateOrUpdateCommentsDto createOrUpdateCommentsDto) {

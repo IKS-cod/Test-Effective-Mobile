@@ -19,19 +19,50 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Сервис для управления задачами в системе.
+ * Предоставляет методы для создания, получения, обновления и удаления задач,
+ * а также для получения задач и комментариев по автору или исполнителю.
+ *
+ */
 @Service
 public class TaskService {
 
+    /**
+     * Репозиторий для доступа к задачам в базе данных.
+     */
     private final TaskRepository taskRepository;
+
+    /**
+     * Репозиторий для доступа к информации о пользователях в базе данных.
+     */
     private final UserInfoRepository userInfoRepository;
+
+    /**
+     * Репозиторий для доступа к комментариям в базе данных.
+     */
     private final CommentRepository commentRepository;
 
+    /**
+     * Конструктор для инициализации репозиториев.
+     *
+     * @param taskRepository      репозиторий задач
+     * @param userInfoRepository  репозиторий информации о пользователях
+     * @param commentRepository репозиторий комментариев
+     */
     public TaskService(TaskRepository taskRepository, UserInfoRepository userInfoRepository, CommentRepository commentRepository) {
         this.taskRepository = taskRepository;
         this.userInfoRepository = userInfoRepository;
         this.commentRepository = commentRepository;
     }
 
+    /**
+     * Создает новую задачу на основе предоставленных данных.
+     *
+     * @param createTaskDto объект, содержащий данные для создания задачи
+     * @return DTO объект, содержащий информацию о созданной задаче
+     * @throws UserNotFoundException если не найден пользователь с указанным email автора или исполнителя
+     */
     @CustomLoggingStartMethod
     @CustomLoggingFinishedMethod
     public TaskFromDbDto createTask(CreateTaskDto createTaskDto) {
@@ -41,13 +72,13 @@ public class TaskService {
         taskForDb.setPriority(createTaskDto.getPriority());
 
         UserInfo userInfoFromDbAssignee = userInfoRepository.findByEmail(createTaskDto.getEmailAssignee())
-                .orElseThrow(() -> new UserNotFoundException("Пользователь с email не найден." +
+                .orElseThrow(() -> new UserNotFoundException("Пользователь с email не найден: " +
                         createTaskDto.getEmailAssignee()));
 
         taskForDb.setAssignee(userInfoFromDbAssignee);
 
         UserInfo userInfoFromDbAuthor = userInfoRepository.findByEmail(createTaskDto.getEmailAuthor())
-                .orElseThrow(() -> new UserNotFoundException("Пользователь с email не найден." +
+                .orElseThrow(() -> new UserNotFoundException("Пользователь с email не найден: " +
                         createTaskDto.getEmailAuthor()));
         taskForDb.setAuthor(userInfoFromDbAuthor);
 
@@ -67,11 +98,18 @@ public class TaskService {
         return taskFromDbDto;
     }
 
+    /**
+     * Получает задачу по ее идентификатору, включая связанные комментарии.
+     *
+     * @param id идентификатор задачи
+     * @return DTO объект, содержащий информацию о задаче и ее комментариях
+     * @throws TaskNotFoundException если задача с указанным идентификатором не найдена
+     */
     @CustomLoggingStartMethod
     @CustomLoggingFinishedMethod
     public TaskWithCommentsFromDbDto getTaskById(Long id) {
         Task taskFromDb = taskRepository.findById(id)
-                .orElseThrow(() -> new TaskNotFoundException("Задача с идентификатором не найдена." + id));
+                .orElseThrow(() -> new TaskNotFoundException("Задача с идентификатором не найдена: " + id));
 
         TaskWithCommentsFromDbDto taskWithCommentsFromDbDto = new TaskWithCommentsFromDbDto();
         taskWithCommentsFromDbDto.setId(taskFromDb.getId());
@@ -92,14 +130,23 @@ public class TaskService {
         return taskWithCommentsFromDbDto;
     }
 
+    /**
+     * Обновляет существующую задачу на основе предоставленных данных.
+     *
+     * @param id          идентификатор задачи, которую необходимо обновить
+     * @param updateTaskDto объект, содержащий данные для обновления задачи
+     * @return DTO объект, содержащий информацию об обновленной задаче
+     * @throws TaskNotFoundException если задача с указанным идентификатором не найдена
+     * @throws UserNotFoundException если не найден пользователь с указанным email исполнителя
+     */
     @CustomLoggingStartMethod
     @CustomLoggingFinishedMethod
     public TaskFromDbDto updateTask(Long id, UpdateTaskDto updateTaskDto) {
         Task taskFromDb = taskRepository.findById(id)
-                .orElseThrow(() -> new TaskNotFoundException("Задача с идентификатором не найдена." + id));
+                .orElseThrow(() -> new TaskNotFoundException("Задача с идентификатором не найдена: " + id));
 
         UserInfo userInfoFromDbAssignee = userInfoRepository.findByEmail(updateTaskDto.getEmailAssignee())
-                .orElseThrow(() -> new UserNotFoundException("Пользователь с email не найден." +
+                .orElseThrow(() -> new UserNotFoundException("Пользователь с email не найден: " +
                         updateTaskDto.getEmailAssignee()));
 
         // Обновление полей задачи
@@ -125,11 +172,19 @@ public class TaskService {
         return updatedTaskDTO;
     }
 
+    /**
+     * Обновляет статус существующей задачи.
+     *
+     * @param id            идентификатор задачи, статус которой необходимо обновить
+     * @param statusTaskDto объект, содержащий новый статус задачи
+     * @return DTO объект, содержащий информацию об обновленной задаче
+     * @throws TaskNotFoundException если задача с указанным идентификатором не найдена
+     */
     @CustomLoggingStartMethod
     @CustomLoggingFinishedMethod
     public TaskFromDbDto updateTaskStatus(Long id, StatusTaskDto statusTaskDto) {
         Task taskFromDb = taskRepository.findById(id)
-                .orElseThrow(() -> new TaskNotFoundException("Задача с идентификатором не найдена." + id));
+                .orElseThrow(() -> new TaskNotFoundException("Задача с идентификатором не найдена: " + id));
 
         // Обновление статуса задачи
         taskFromDb.setStatus(statusTaskDto.getStatus());
@@ -150,6 +205,12 @@ public class TaskService {
         return updatedStatusDTO;
     }
 
+    /**
+     * Удаляет задачу по ее идентификатору.
+     *
+     * @param id идентификатор задачи, которую необходимо удалить
+     * @throws TaskNotFoundException если задача с указанным идентификатором не найдена
+     */
     @CustomLoggingStartMethod
     @CustomLoggingFinishedMethod
     public void deleteTask(Long id) {
@@ -160,6 +221,14 @@ public class TaskService {
         taskRepository.deleteById(id);
     }
 
+    /**
+     * Получает список задач и комментариев, автором которых является указанный пользователь, с применением пагинации.
+     *
+     * @param authorId идентификатор автора задач
+     * @param page     номер страницы
+     * @param size     размер страницы
+     * @return Page объект, содержащий список задач и комментариев, а также информацию о пагинации
+     */
     @CustomLoggingStartMethod
     @CustomLoggingFinishedMethod
     public Page<TaskAndCommentsForAuthorFromDbDto> getTasksAndCommentsByAuthor(Long authorId, int page, int size) {
@@ -185,6 +254,14 @@ public class TaskService {
         });
     }
 
+    /**
+     * Получает список задач и комментариев, исполнителем которых является указанный пользователь, с применением пагинации.
+     *
+     * @param assigneeId идентификатор исполнителя задач
+     * @param page       номер страницы
+     * @param size       размер страницы
+     * @return Page объект, содержащий список задач и комментариев, а также информацию о пагинации
+     */
     @CustomLoggingStartMethod
     @CustomLoggingFinishedMethod
     public Page<TaskAndCommentsForAssigneeFromDbDto> getTasksAndCommentsByAssignee(Long assigneeId, int page, int size) {
@@ -210,3 +287,4 @@ public class TaskService {
         });
     }
 }
+

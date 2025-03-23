@@ -16,13 +16,23 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 
+/**
+ * Конфигурация безопасности веб-приложения. Этот класс настраивает механизмы безопасности, включая аутентификацию и авторизацию.
+ *
+ */
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
+    /**
+     * Фильтр запросов JWT, используемый для проверки токенов аутентификации.
+     */
     private final JwtRequestFilter jwtRequestFilter;
 
+    /**
+     * Массив путей, которые не требуют аутентификации (белый список).
+     */
     private static final String[] AUTH_WHITELIST = {
             "/swagger-resources/**",
             "/v3/api-docs/**", // Если используете SpringDoc
@@ -31,10 +41,21 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
             "/register"
     };
 
+    /**
+     * Конструктор для инициализации фильтра JWT.
+     *
+     * @param jwtRequestFilter фильтр запросов JWT
+     */
     public WebSecurityConfig(JwtRequestFilter jwtRequestFilter) {
         this.jwtRequestFilter = jwtRequestFilter;
     }
 
+    /**
+     * Бин для менеджера аутентификации. Этот метод создаёт и возвращает экземпляр менеджера аутентификации.
+     *
+     * @return менеджер аутентификации
+     * @throws Exception если возникает ошибка при создании менеджера аутентификации
+     */
     @Bean
     @Override
     @CustomLoggingStartMethod
@@ -43,6 +64,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         return super.authenticationManagerBean();
     }
 
+    /**
+     * Метод для настройки безопасности HTTP. Этот метод конфигурирует правила доступа и добавляет фильтр JWT.
+     *
+     * @param http конфигурация безопасности HTTP
+     * @throws Exception если возникает ошибка при настройке безопасности
+     */
     @Override
     @CustomLoggingStartMethod
     @CustomLoggingFinishedMethod
@@ -59,6 +86,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
     }
 
+    /**
+     * Бин для кодировщика паролей. Этот метод возвращает экземпляр кодировщика паролей BCrypt.
+     *
+     * @return кодировщик паролей
+     */
     @Bean
     @CustomLoggingStartMethod
     @CustomLoggingFinishedMethod
@@ -66,3 +98,4 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         return new BCryptPasswordEncoder();
     }
 }
+

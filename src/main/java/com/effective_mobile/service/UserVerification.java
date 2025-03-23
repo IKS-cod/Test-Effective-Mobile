@@ -11,15 +11,40 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+/**
+ * Сервис для проверки прав пользователя на добавление комментариев к задаче.
+ *
+ */
 @Service
 public class UserVerification {
 
+    /**
+     * Логгер для записи информации о проверке прав пользователя.
+     */
     private static final Logger logger = LoggerFactory.getLogger(UserVerification.class);
 
+    /**
+     * Репозиторий для доступа к задачам в базе данных.
+     */
     private final TaskRepository taskRepository;
+
+    /**
+     * Конструктор для инициализации репозитория задач.
+     *
+     * @param taskRepository репозиторий задач
+     */
     public UserVerification(TaskRepository taskRepository) {
         this.taskRepository = taskRepository;
     }
+
+    /**
+     * Проверяет, имеет ли текущий пользователь право добавлять комментарии к задаче.
+     * Право на добавление комментариев имеет пользователь, являющийся исполнителем задачи.
+     *
+     * @param taskId идентификатор задачи
+     * @return true, если пользователь имеет право добавлять комментарии, false иначе
+     * @throws TaskNotFoundException если задача с указанным идентификатором не найдена
+     */
     @CustomLoggingStartMethod
     @CustomLoggingFinishedMethod
     public boolean verificationUserForComment(Long taskId) {

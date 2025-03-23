@@ -17,20 +17,48 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+/**
+ * Фильтр для обработки запросов с токенами JWT. Этот фильтр проверяет наличие и валидность токена в каждом запросе.
+ *
+ */
 @Component
 public class JwtRequestFilter extends OncePerRequestFilter {
 
+    /**
+     * Логгер для записи информации о выполнении методов фильтра.
+     */
     private static final Logger logger = LoggerFactory.getLogger(JwtRequestFilter.class);
 
-
+    /**
+     * Утилита для работы с токенами JWT, предоставляющая методы для извлечения и проверки токенов.
+     */
     private final JwtUtil jwtUtil;
+
+    /**
+     * Сервис для работы с пользователями, предоставляющий информацию о пользователях.
+     */
     private final UserService userService;
 
+    /**
+     * Конструктор для инициализации утилиты JWT и сервиса пользователей.
+     *
+     * @param jwtUtil утилита для работы с токенами JWT
+     * @param userService сервис для работы с пользователями
+     */
     public JwtRequestFilter(JwtUtil jwtUtil, UserService userService) {
         this.jwtUtil = jwtUtil;
         this.userService = userService;
     }
 
+    /**
+     * Метод, выполняющийся для каждого запроса. Он проверяет наличие и валидность токена JWT в заголовке запроса.
+     *
+     * @param request запрос, содержащий информацию о клиенте
+     * @param response ответ, который будет отправлен клиенту
+     * @param chain цепочка фильтров, через которую проходит запрос
+     * @throws ServletException если возникает ошибка при обработке запроса
+     * @throws IOException если возникает ошибка при чтении или записи данных
+     */
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {

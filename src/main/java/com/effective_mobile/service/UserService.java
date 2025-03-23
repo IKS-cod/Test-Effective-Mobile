@@ -11,14 +11,35 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+/**
+ * Сервис для работы с информацией о пользователях, реализующий интерфейс {@link org.springframework.security.core.userdetails.UserDetailsService}.
+ * Этот сервис предоставляет метод для загрузки информации о пользователе по его email-адресу.
+ *
+ */
 @Service
 public class UserService implements UserDetailsService {
+
+    /**
+     * Репозиторий для доступа к информации о пользователях в базе данных.
+     */
     private final UserInfoRepository userRepository;
 
+    /**
+     * Конструктор для инициализации репозитория пользователей.
+     *
+     * @param userRepository репозиторий пользователей
+     */
     public UserService(UserInfoRepository userRepository) {
         this.userRepository = userRepository;
     }
 
+    /**
+     * Загружает информацию о пользователе по его email-адресу.
+     *
+     * @param email email-адрес пользователя
+     * @return объект UserDetails, содержащий информацию о пользователе
+     * @throws UsernameNotFoundException если пользователь с указанным email не найден
+     */
     @Override
     @CustomLoggingStartMethod
     @CustomLoggingFinishedMethod
