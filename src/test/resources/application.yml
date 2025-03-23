@@ -1,0 +1,9 @@
+spring:
+  datasource:
+    url: ${container.jdbcUrl}
+    username: ${container.username}
+    password: ${container.password}
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
